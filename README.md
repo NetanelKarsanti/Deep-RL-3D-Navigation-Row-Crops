@@ -17,10 +17,18 @@ DQN) that train and are compared on it, plus a multi-seed experiment runner.
 
 ## At a Glance
 
-| The training environment (`50×50×4`) | A trained agent |
-|:---:|:---:|
-| ![Top-down obstacle map of the 50×50×4 row-crop environment](assets/env_overview.png) | ![Greedy rollout of a trained agent reaching the goal](assets/agent_rollout.gif) |
-| Top-down obstacle map of the actual `Grid3DEnv` used for training. Horizontal bands are **crop rows**; coloured blocks are obstacles (colour = height); the green ★ is the **goal** at `(20, 18, 0)`. | A greedy rollout of a trained agent navigating from a random start to the goal while staying on the ground. |
+The **`50×50×4` `Grid3DEnv`** used for training — a light-brown ground floor,
+**green crop rows**, and randomly-coloured obstacles of varying height. The red
+dot is the agent; the green ★ is the goal.
+
+![The training environment: 3D scene (left) and 2D top-down map (right)](assets/env_overview.png)
+
+A trained agent's greedy rollout — it navigates from a random start to the goal
+while staying on the ground (white trail = path taken):
+
+<p align="center">
+  <img src="assets/agent_rollout.gif" width="60%" alt="Greedy rollout of a trained DQN agent reaching the goal on the 50×50×4 grid">
+</p>
 
 ---
 
