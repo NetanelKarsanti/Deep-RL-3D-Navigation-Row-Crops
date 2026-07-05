@@ -28,6 +28,10 @@ env/
 *.jpeg
 *.csv
 
+# ...but keep the documentation assets used in the README (env figure + rollout gif)
+!assets/*.png
+!assets/*.gif
+
 # TensorBoard + training logs
 tensorboard/
 events.out.tfevents.*

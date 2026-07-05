@@ -15,6 +15,15 @@ DQN) that train and are compared on it, plus a multi-seed experiment runner.
 
 ---
 
+## At a Glance
+
+| The environment | A trained agent |
+|:---:|:---:|
+| ![Top-down obstacle map of the 50×50×4 row-crop environment](assets/env_overview.png) | ![Greedy rollout of a trained agent reaching the goal](assets/agent_rollout.gif) |
+| Top-down obstacle map. Horizontal bands are **crop rows**; coloured blocks are obstacles (colour = height); the green ★ is the **goal**. | A greedy rollout of a trained agent navigating from a random start to the goal while staying on the ground. |
+
+---
+
 ## Repository Structure
 
 | Folder | Contents |
