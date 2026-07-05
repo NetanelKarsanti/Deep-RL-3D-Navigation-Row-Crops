@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Heavy / generated training artifacts — repo keeps code + documentation only
+*.pt
+*.zip
+*.gif
+*.png
+*.jpg
+*.jpeg
+*.csv
+
+# TensorBoard + training logs
+tensorboard/
+events.out.tfevents.*
+*.log
+
+# Per-agent training run outputs
+MDP_DQN/runs/
+Double_DQN/runs/
+
+# Seed-sweep outputs (the orchestrator script IS tracked; its results are not)
+experiments/results/
