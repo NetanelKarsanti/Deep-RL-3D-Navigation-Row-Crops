@@ -67,6 +67,18 @@ The immediate reward `R(s, a)` is defined as:
 
 $$R(s, a) = \begin{cases} +50 & \text{if } s' = g \quad \text{(goal reached)} \\ -5 & \text{if } s' = s \quad \text{(blocked — no movement)} \\ -3 & \text{if } \tilde{a} = 4 \quad \text{(upward move, } +z\text{)} \\ -1 & \text{otherwise} \end{cases}$$
 
+**Avoidable-air penalty.** On top of the move reward, an extra `−air_cost`
+(default `0.2`) is added when the agent cruises horizontally (`±x`, `±y`) at
+altitude `z ≥ 1` while the `z = 0` cell directly below is free — it could have
+walked on the ground. Vertical moves and flight over a real obstacle are
+**exempt**. The penalty is **on by default** (`--air-cost 0` disables it).
+
+This agent supports three reward variants via `--reward-mode`: `simple` (the
+discrete table above + flat air penalty, the default), `energy` (height-graded
+air penalty), and `dist` (a continuous distance-based reward). Episodes
+**terminate** on reaching the goal and **truncate** after `max_steps` (200 by
+default in `Grid3DEnv`; training and evaluation use **500**).
+
 ### Obstacle Layout
 
 All obstacle heights scale proportionally with `H` via:
@@ -156,9 +168,11 @@ This shaping is **policy-invariant** (Ng et al., 1999).
 |------|-------------|
 | `grid3d_env.py` | `Grid3DEnv` Gymnasium environment |
 | `train_dqn.py` | Double DQN training script |
-| `analyze_results.py` | Post-training analysis and plots |
-| `visualize_agent.py` | Greedy rollout with trained model — saves GIF and PNG |
+| `analyze_results.py` | Post-training analysis and plots (success rate, path efficiency, heatmap) |
+| `visualize_agent.py` | Greedy rollout with a trained model — saves GIF and PNG |
 | `show_env.py` | Top-down obstacle heatmap of the environment |
+| `render_demo.py` | BFS-planned reference episode → GIF (sanity check, no learning) |
+| `test_double_dqn.py` | Smoke test for the Double DQN agent (short training run) |
 
 ---
 
@@ -176,6 +190,15 @@ python train_dqn.py --steps 500000 --lr 1e-3 --epsilon-decay 350000 \
 python analyze_results.py --results runs/run_01_baseline \
                           --model runs/run_01_baseline/online_q_network.pt
 ```
+
+### Reward / task flags
+
+| Flag | Default | Meaning |
+|------|---------|---------|
+| `--air-cost FLOAT` | `0.2` | Avoidable-air penalty weight; `0` disables it. |
+| `--reward-mode {simple,energy,dist}` | `simple` | `simple` = discrete table + flat air penalty; `energy` = height-graded penalty; `dist` = continuous distance-based reward. |
+| `--random-goal` | off | Randomize the goal each episode (goal-conditioned task). |
+| `--her` | off | Hindsight Experience Replay (use with `--random-goal`). |
 
 ---
 

@@ -17,10 +17,10 @@ DQN) that train and are compared on it, plus a multi-seed experiment runner.
 
 ## At a Glance
 
-| The environment | A trained agent |
+| The training environment (`50×50×4`) | A trained agent |
 |:---:|:---:|
 | ![Top-down obstacle map of the 50×50×4 row-crop environment](assets/env_overview.png) | ![Greedy rollout of a trained agent reaching the goal](assets/agent_rollout.gif) |
-| Top-down obstacle map. Horizontal bands are **crop rows**; coloured blocks are obstacles (colour = height); the green ★ is the **goal**. | A greedy rollout of a trained agent navigating from a random start to the goal while staying on the ground. |
+| Top-down obstacle map of the actual `Grid3DEnv` used for training. Horizontal bands are **crop rows**; coloured blocks are obstacles (colour = height); the green ★ is the **goal** at `(20, 18, 0)`. | A greedy rollout of a trained agent navigating from a random start to the goal while staying on the ground. |
 
 ---
 
@@ -28,7 +28,6 @@ DQN) that train and are compared on it, plus a multi-seed experiment runner.
 
 | Folder | Contents |
 |--------|----------|
-| [`3D_env/`](3D_env/) | Minimal, dependency-light `Grid3DEnv` (`12×8×5`, deterministic) + a BFS-planned GIF render demo. The lightweight reference environment. |
 | [`MDP_DQN/`](MDP_DQN/) | The full stochastic `Grid3DEnv` (`50×50×4`) + a **vanilla DQN** agent. |
 | [`Double_DQN/`](Double_DQN/) | The same stochastic environment + a **Double DQN** agent and post-training analysis tooling. |
 | [`experiments/`](experiments/) | `run_seed_sweep.py` — trains **both** agents over multiple seeds and produces a cross-seed comparison. |
@@ -222,13 +221,6 @@ python visualize_agent.py --model runs/run_01_baseline/online_q_network.pt
 # Post-training analysis and plots
 python analyze_results.py --results runs/run_01_baseline \
                           --model runs/run_01_baseline/online_q_network.pt
-```
-
-For the lightweight demo environment, see [`3D_env/`](3D_env/):
-
-```bash
-python 3D_env/grid3d_env.py    # random-policy smoke test
-python 3D_env/render_demo.py   # BFS-planned episode → episode.gif
 ```
 
 ---

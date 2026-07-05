@@ -70,6 +70,15 @@ $$R(s, a) = \begin{cases} +50 & \text{if } s' = g \quad \text{(goal reached)} \\
 The negative step cost encourages shortest-path solutions; the elevated cost
 for upward movement biases the agent toward ground-level navigation.
 
+**Avoidable-air penalty.** On top of the move reward, an extra `−air_cost`
+(default `0.2`) is added when the agent performs a horizontal cruise (`±x`, `±y`)
+at altitude `z ≥ 1` while the `z = 0` cell directly below is free — it could have
+walked on the ground. Vertical moves (`±z`) and flight over a real obstacle are
+**exempt**, so a genuine obstacle crossing (climb → cross → descend) is never
+penalised. The penalty is **on by default** (`--air-cost 0` disables it); with
+`--reward-mode energy` the flat penalty is replaced by a height-graded one. This
+reflects the energy objective that air travel costs more than ground travel.
+
 ### Obstacle Layout
 
 All obstacle heights scale proportionally with `H` via:
@@ -104,7 +113,8 @@ The layout consists of four obstacle categories:
    | Left / upper band | `L/10` | `3W/4` |
 
 Episodes **terminate** upon reaching the goal and **truncate** after
-`max_steps` steps (default 200).
+`max_steps` steps. The `Grid3DEnv` class defaults to `max_steps = 200`, but
+training and evaluation both use **500** (`--max-episode-steps`).
 
 ---
 
@@ -158,8 +168,13 @@ true reward `R` exclusively.
 |------|-------------|
 | `grid3d_env.py` | `Grid3DEnv` Gymnasium environment |
 | `train_dqn.py` | DQN training script |
-| `visualize_agent.py` | Greedy rollout with trained model — saves GIF and PNG |
+| `analyze_results.py` | Post-training analysis and plots (success rate, path efficiency, heatmap) |
+| `visualize_agent.py` | Greedy rollout with a trained model — saves GIF and PNG |
+| `visualize_env.py` | Two-panel (3D + top-down) rendering of the environment |
 | `show_env.py` | Top-down obstacle heatmap of the environment |
+| `render_demo.py` | BFS-planned reference episode → GIF (sanity check, no learning) |
+| `investigate_airtime.py` | Diagnostic: necessary vs. gratuitous air-time of a trained agent |
+| `visualize_best_models_gifs.py` | Renders 2×2 GIF panels from the best trained checkpoints |
 
 ---
 
@@ -185,6 +200,16 @@ python visualize_agent.py --model dqn_results/online_q_network.pt
 # Train on smaller grid for fast experimentation
 python train_dqn.py --grid-l 12 --grid-w 8 --grid-h 4 --steps 200000
 ```
+
+### Reward / task flags
+
+| Flag | Default | Meaning |
+|------|---------|---------|
+| `--air-cost FLOAT` | `0.2` | Avoidable-air penalty weight; `0` disables it. |
+| `--reward-mode {simple,energy}` | `simple` | `simple` = flat air penalty; `energy` = height-graded air penalty. |
+| `--random-goal` | off | Randomize the goal each episode (goal-conditioned task). |
+| `--her` | off | Hindsight Experience Replay (use with `--random-goal`). |
+| `--no-shaping` | off | Disable potential-based reward shaping (ablation: raw sparse reward). |
 
 ---
 
