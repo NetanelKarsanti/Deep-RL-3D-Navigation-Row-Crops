@@ -7,6 +7,9 @@ under an energy objective that discourages unnecessary flight. The repository
 contains a shared Gymnasium environment and two agents (vanilla DQN and Double
 DQN) that train and are compared on it, plus a multi-seed experiment runner.
 
+**Authors:** Netanel Karsanti, Nisim Kachlon, Saar David
+**Course supervisor:** Dr. Ayal Taitler
+
 > This top-level README collects the parts common to every sub-project. Each
 > sub-folder keeps its own README with the details specific to that variant.
 
