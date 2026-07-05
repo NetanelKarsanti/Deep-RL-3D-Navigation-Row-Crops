@@ -17,13 +17,13 @@ DQN) that train and are compared on it, plus a multi-seed experiment runner.
 
 ## At a Glance
 
-The **`50×50×4` `Grid3DEnv`** used for training — a light-brown ground floor,
+The **`50×50×4` `Grid3DEnv`** used for training  a light-brown ground floor,
 **green crop rows**, and randomly-coloured obstacles of varying height. The red
 dot is the agent; the green ★ is the goal.
 
 ![The training environment: 3D scene (left) and 2D top-down map (right)](assets/env_overview.png)
 
-A trained agent's greedy rollout — it navigates from a random start to the goal
+A trained agent's greedy rollout  it navigates from a random start to the goal
 while staying on the ground (white trail = path taken):
 
 <p align="center">
@@ -38,7 +38,7 @@ while staying on the ground (white trail = path taken):
 |--------|----------|
 | [`MDP_DQN/`](MDP_DQN/) | The full stochastic `Grid3DEnv` (`50×50×4`) + a **vanilla DQN** agent. |
 | [`Double_DQN/`](Double_DQN/) | The same stochastic environment + a **Double DQN** agent and post-training analysis tooling. |
-| [`experiments/`](experiments/) | `run_seed_sweep.py` — trains **both** agents over multiple seeds and produces a cross-seed comparison. |
+| [`experiments/`](experiments/) | `run_seed_sweep.py`  trains **both** agents over multiple seeds and produces a cross-seed comparison. |
 
 Each agent folder shares the same core files: `grid3d_env.py` (environment),
 `train_dqn.py` (training), `visualize_agent.py` (greedy rollout → GIF/PNG),
@@ -46,7 +46,7 @@ Each agent folder shares the same core files: `grid3d_env.py` (environment),
 
 > **Note:** training artifacts (`runs/`, `experiments/results/`, `*.pt`, `*.png`,
 > `*.csv`, `*.gif`, `*.log`) are generated locally and intentionally excluded via
-> `.gitignore` — the repository keeps code and documentation only.
+> `.gitignore`  the repository keeps code and documentation only.
 
 ---
 
@@ -58,7 +58,7 @@ coordinates `(x, y, z)`. The goal sits at a fixed proportional position
 `g = (⌊5L/12⌋, ⌊3W/8⌋, 0)`; the agent starts each episode at `z = 0` from a
 uniformly random free cell (excluding the goal).
 
-### Action Space — `Discrete(6)`
+### Action Space  `Discrete(6)`
 
 | Index | Direction | `(dx, dy, dz)` |
 |-------|-----------|----------------|
@@ -72,7 +72,7 @@ uniformly random free cell (excluding the goal).
 If the target cell is blocked (obstacle or out-of-bounds), the agent stays put
 and receives the collision penalty.
 
-### Observation Space — `Box(12,)`
+### Observation Space  `Box(12,)`
 
 A 12-D float32 vector: agent position `(x, y, z)`, goal-relative offset
 `(gₓ−x, g_y−y, g_z−z)`, and 6 binary "next-cell-blocked" flags (one per action).
@@ -101,7 +101,7 @@ on reaching the goal and **truncate** after `max_steps`.
 
 **Avoidable-air penalty.** On top of the move reward, a horizontal cruise
 (`±x`, `±y`) performed at altitude `z ≥ 1` while the `z = 0` cell directly below
-is free incurs an extra `−air_cost` (default `air_cost = 0.2`) — the agent could
+is free incurs an extra `−air_cost` (default `air_cost = 0.2`)  the agent could
 have walked on the ground. Ascending/descending (`±z`) and flight over an actual
 obstacle are **exempt**, so a genuine obstacle crossing (climb → cross → descend)
 is never penalised. This reflects the energy objective that air travel costs more
@@ -155,13 +155,13 @@ pip install gymnasium numpy matplotlib torch
 
 ---
 
-## Reproducing the Experiments — `experiments/run_seed_sweep.py`
+## Reproducing the Experiments  `experiments/run_seed_sweep.py`
 
 `run_seed_sweep.py` is the main entry point for the results in this project. It
 trains **both** agents (vanilla DQN and Double DQN) over the same set of random
 seeds, evaluates each run with `analyze_results.py`, and writes a cross-seed
 comparison. Because both agents use the **same** reward, the only variable is the
-Bellman target — a fair head-to-head.
+Bellman target  a fair head-to-head.
 
 Run it from the repository root:
 
@@ -207,7 +207,7 @@ All outputs land under `experiments/results/` (git-ignored):
 
 The runner is designed for headless execution: every progress line and both
 summary tables are mirrored to disk, so nothing needs to be watched live.
-Finished runs are cached — re-invoking skips any (algo, seed) that already has a
+Finished runs are cached  re-invoking skips any (algo, seed) that already has a
 checkpoint unless `--force` is given.
 
 ---
