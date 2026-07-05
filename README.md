@@ -25,7 +25,7 @@ DQN) that train and are compared on it, plus a multi-seed experiment runner.
 | [`experiments/`](experiments/) | `run_seed_sweep.py` — trains **both** agents over multiple seeds and produces a cross-seed comparison. |
 
 Each agent folder shares the same core files: `grid3d_env.py` (environment),
-`Q3_DQN.py` (training), `visualize_agent.py` (greedy rollout → GIF/PNG),
+`train_dqn.py` (training), `visualize_agent.py` (greedy rollout → GIF/PNG),
 `show_env.py` (top-down obstacle heatmap), and `analyze_results.py` (plots).
 
 > **Note:** training artifacts (`runs/`, `experiments/results/`, `*.pt`, `*.png`,
@@ -202,7 +202,7 @@ Each agent folder is self-contained. From inside `MDP_DQN/` or `Double_DQN/`:
 
 ```bash
 # Train a single run
-python Q3_DQN.py --output runs/run_01_baseline
+python train_dqn.py --output runs/run_01_baseline
 
 # Visualize the environment layout (top-down obstacle heatmap)
 python show_env.py

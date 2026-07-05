@@ -27,7 +27,7 @@ import torch
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 from grid3d_env import Grid3DEnv                                  # noqa: E402
-from Q3_DQN import TwoLayerQNetwork, normalize_obs, N_ACTIONS, OBS_DIM  # noqa: E402
+from train_dqn import TwoLayerQNetwork, normalize_obs, N_ACTIONS, OBS_DIM  # noqa: E402
 
 EXP = ROOT.parent / "experiments"
 STATIC_CK = EXP / "controlled_static_vs_dynamic_shaping/static/seed_001/online_q_network.pt"

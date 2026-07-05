@@ -28,7 +28,7 @@ import numpy as np
 import torch
 
 from grid3d_env import Grid3DEnv
-from Q3_DQN import TwoLayerQNetwork, normalize_obs
+from train_dqn import TwoLayerQNetwork, normalize_obs
 
 
 def rollout_stats(model, env, grid_max, n_episodes, max_steps, device):

@@ -1,5 +1,5 @@
 """
-Double DQN implementation for Grid3DEnv — 3D grid navigation task.
+DQN implementation for Grid3DEnv — 3D grid navigation task.
 
 The agent learns to navigate a 50x50x4 voxel grid (default) from a random start
 at z=0 to the fixed goal at (5L/12, 3W/8, 0), avoiding static obstacles.
@@ -9,7 +9,7 @@ Actions:     6 discrete (±x, ±y, ±z movement)
 Rewards:     +50 goal, -5 collision, -3 move up, -1 other move, -air_cost avoidable air
 
 Default run:
-    python Q3_DQN.py
+    python train_dqn.py
 """
 
 from __future__ import annotations
@@ -85,7 +85,7 @@ def her_relabel_episode(episode, agent, her_env, grid_max, settings, her_rng) ->
                                    g[0] - next_pos_i[0], g[1] - next_pos_i[1], g[2] - next_pos_i[2],
                                    *next_flags_i], dtype=np.float32)
             # Match the main loop's shaping (applied for the discrete rewards, not "dist").
-            if settings.reward_mode in ("simple", "energy"):
+            if settings.shaping and settings.reward_mode in ("simple", "energy"):
                 phi_b = -float(np.linalg.norm(obs_r[3:6]))      - settings.beta_z * float(obs_r[2])
                 phi_a = -float(np.linalg.norm(next_obs_r[3:6])) - settings.beta_z * float(next_obs_r[2])
                 shaped = r + settings.gamma * phi_a - phi_b
@@ -119,11 +119,12 @@ class DQNSettings:
     max_episode_steps: int = 500
 
     beta_z: float = 1.0
-    reward_mode: str = "simple"
     air_cost: float = 0.2
+    reward_mode: str = "simple"
     random_goal: bool = False
     her: bool = False
     her_k: int = 4
+    shaping: bool = True   # potential-based reward shaping (Φ = -dist - β_z·z)
 
     seed: int = 42
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
@@ -185,7 +186,7 @@ class TwoLayerQNetwork(nn.Module):
 
 
 # -----------------------------------------------------------------------------
-# Double DQN agent
+# DQN agent
 # -----------------------------------------------------------------------------
 class Grid3DDQNAgent:
     def __init__(self, settings: DQNSettings):
@@ -241,8 +242,7 @@ class Grid3DDQNAgent:
         current_q_values = self.online_network(states_t).gather(1, actions_t)
 
         with torch.no_grad():
-            best_actions = self.online_network(next_states_t).argmax(dim=1, keepdim=True)
-            best_next_q_values = self.target_network(next_states_t).gather(1, best_actions)
+            best_next_q_values = self.target_network(next_states_t).max(dim=1, keepdim=True).values
             target_q_values = rewards_t + self.settings.gamma * (1.0 - dones_t) * best_next_q_values
 
         loss = self.loss_function(current_q_values, target_q_values)
@@ -298,14 +298,14 @@ def evaluate_policy(eval_env: Grid3DEnv, agent: Grid3DDQNAgent, settings: DQNSet
 def train(settings: DQNSettings, output_dir: Path) -> List[Dict]:
     train_env = Grid3DEnv(L=settings.grid_l, W=settings.grid_w, H=settings.grid_h,
                           max_steps=settings.max_episode_steps, noise_prob=settings.noise_prob,
-                          beta_z=settings.beta_z, reward_mode=settings.reward_mode,
-                          air_cost=settings.air_cost, random_goal=settings.random_goal)
+                          air_cost=settings.air_cost, reward_mode=settings.reward_mode,
+                          random_goal=settings.random_goal)
     # Evaluation matches the historical airsweep protocol: same action noise as
     # training, and fresh random start positions each eval (see evaluate_policy).
     eval_env  = Grid3DEnv(L=settings.grid_l, W=settings.grid_w, H=settings.grid_h,
                           max_steps=settings.max_episode_steps, noise_prob=settings.noise_prob,
-                          beta_z=settings.beta_z, reward_mode=settings.reward_mode,
-                          air_cost=settings.air_cost, random_goal=settings.random_goal)
+                          air_cost=settings.air_cost, reward_mode=settings.reward_mode,
+                          random_goal=settings.random_goal)
 
     grid_max = np.array([train_env.L - 1, train_env.W - 1, train_env.H - 1], dtype=np.float32)
 
@@ -314,8 +314,7 @@ def train(settings: DQNSettings, output_dir: Path) -> List[Dict]:
     # HER: a throwaway env (same layout) used only to recompute rewards for relabeled
     # goals, and a dedicated RNG so relabel sampling doesn't perturb the env stream.
     her_env = Grid3DEnv(L=settings.grid_l, W=settings.grid_w, H=settings.grid_h,
-                        beta_z=settings.beta_z, reward_mode=settings.reward_mode,
-                        air_cost=settings.air_cost) if settings.her else None
+                        air_cost=settings.air_cost, reward_mode=settings.reward_mode) if settings.her else None
     her_rng = np.random.default_rng(settings.seed + 7)
     episode_experiences: List = []
 
@@ -347,9 +346,8 @@ def train(settings: DQNSettings, output_dir: Path) -> List[Dict]:
 
         # Potential-based reward shaping: F(s,s') = γ·Φ(s') - Φ(s)
         # Φ(s) = -dist - β_z·z  (z-aware: agent is rewarded for descending).
-        # Applied for the discrete rewards ("simple"/"energy") to densify learning;
-        # NOT for "dist", whose reward already encodes the distance/z potential.
-        if settings.reward_mode in ("simple", "energy"):
+        # Disabled by --no-shaping (ablation: learn from the raw sparse reward only).
+        if settings.shaping:
             phi_before = -dist_before - settings.beta_z * z_before
             phi_after  = -dist_after  - settings.beta_z * z_after
             shaped_reward = reward + settings.gamma * phi_after - phi_before
@@ -430,7 +428,7 @@ def plot_evaluation_rewards(evaluation_log: List[Dict], output_dir: Path) -> Non
     plt.fill_between(eval_indices, means - stds, means + stds, alpha=0.3, label="±1 STD")
     plt.xlabel("Evaluation Point")
     plt.ylabel("Episode Reward")
-    plt.title("Grid3D Double DQN Training")
+    plt.title("Grid3D DQN Training")
     plt.grid(True, alpha=0.3)
     plt.legend()
     plt.tight_layout()
@@ -462,11 +460,11 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--replay-capacity", type=int, default=50_000)
     parser.add_argument("--target-update-freq", type=int, default=250)
     parser.add_argument("--beta-z", type=float, default=1.0)
-    parser.add_argument("--reward-mode", type=str, default="simple", choices=["dist", "simple", "energy"],
-                        help="'simple'=flat air penalty (default); 'energy'=height-graded air penalty; "
-                             "'dist'=distance-based (run_03).")
     parser.add_argument("--air-cost", type=float, default=0.2,
-                        help="Avoidable-air penalty weight (simple/energy modes); in 'energy' graded by height.")
+                        help="Avoidable-air penalty weight for horizontal cruise at z>=1 over free ground. "
+                             "In 'energy' mode it is graded by height (air_cost * z/(H-1)).")
+    parser.add_argument("--reward-mode", type=str, default="simple", choices=["simple", "energy"],
+                        help="'simple'=flat air penalty (baseline); 'energy'=height-graded air penalty.")
     parser.add_argument("--random-goal", action="store_true",
                         help="Randomize the goal each episode (goal-conditioned task).")
     parser.add_argument("--her", action="store_true",
@@ -474,6 +472,8 @@ def parse_arguments() -> argparse.Namespace:
                              "achieved goals (use with --random-goal).")
     parser.add_argument("--her-k", type=int, default=4,
                         help="HER relabeled transitions added per real transition (default 4).")
+    parser.add_argument("--no-shaping", dest="shaping", action="store_false",
+                        help="Disable potential-based reward shaping (ablation: raw sparse reward only).")
     return parser.parse_args()
 
 
@@ -498,11 +498,12 @@ def main() -> None:
         replay_capacity=args.replay_capacity,
         target_update_frequency=args.target_update_freq,
         beta_z=args.beta_z,
-        reward_mode=args.reward_mode,
         air_cost=args.air_cost,
+        reward_mode=args.reward_mode,
         random_goal=args.random_goal,
         her=args.her,
         her_k=args.her_k,
+        shaping=args.shaping,
     )
     set_reproducible_seeds(settings.seed)
 

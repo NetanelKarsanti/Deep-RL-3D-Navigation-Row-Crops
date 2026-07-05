@@ -20,7 +20,7 @@ import torch
 
 # Make sure we import from this folder
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from Q3_DQN import OBS_DIM, DQNSettings, Grid3DDQNAgent, train
+from train_dqn import OBS_DIM, DQNSettings, Grid3DDQNAgent, train
 
 
 class _ConstQNet(torch.nn.Module):

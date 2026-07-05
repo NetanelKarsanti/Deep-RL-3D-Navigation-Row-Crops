@@ -155,7 +155,7 @@ This shaping is **policy-invariant** (Ng et al., 1999).
 | File | Description |
 |------|-------------|
 | `grid3d_env.py` | `Grid3DEnv` Gymnasium environment |
-| `Q3_DQN.py` | Double DQN training script |
+| `train_dqn.py` | Double DQN training script |
 | `analyze_results.py` | Post-training analysis and plots |
 | `visualize_agent.py` | Greedy rollout with trained model — saves GIF and PNG |
 | `show_env.py` | Top-down obstacle heatmap of the environment |
@@ -166,10 +166,10 @@ This shaping is **policy-invariant** (Ng et al., 1999).
 
 ```bash
 # Train with default parameters
-python Q3_DQN.py --output runs/run_01_baseline
+python train_dqn.py --output runs/run_01_baseline
 
 # Train with custom parameters
-python Q3_DQN.py --steps 500000 --lr 1e-3 --epsilon-decay 350000 \
+python train_dqn.py --steps 500000 --lr 1e-3 --epsilon-decay 350000 \
                  --output runs/run_01_baseline
 
 # Analyze results

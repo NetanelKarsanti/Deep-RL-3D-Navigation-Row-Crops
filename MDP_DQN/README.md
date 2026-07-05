@@ -157,7 +157,7 @@ true reward `R` exclusively.
 | File | Description |
 |------|-------------|
 | `grid3d_env.py` | `Grid3DEnv` Gymnasium environment |
-| `Q3_DQN.py` | DQN training script |
+| `train_dqn.py` | DQN training script |
 | `visualize_agent.py` | Greedy rollout with trained model — saves GIF and PNG |
 | `show_env.py` | Top-down obstacle heatmap of the environment |
 
@@ -169,10 +169,10 @@ true reward `R` exclusively.
 pip install gymnasium numpy matplotlib torch
 
 # Train on default 50×50×4 grid
-python Q3_DQN.py
+python train_dqn.py
 
 # Train with custom parameters
-python Q3_DQN.py --grid-l 50 --grid-w 50 --grid-h 4 \
+python train_dqn.py --grid-l 50 --grid-w 50 --grid-h 4 \
                  --steps 500000 --max-episode-steps 500 \
                  --epsilon-decay 350000 --noise-prob 0.1
 
@@ -183,7 +183,7 @@ python show_env.py
 python visualize_agent.py --model dqn_results/online_q_network.pt
 
 # Train on smaller grid for fast experimentation
-python Q3_DQN.py --grid-l 12 --grid-w 8 --grid-h 4 --steps 200000
+python train_dqn.py --grid-l 12 --grid-w 8 --grid-h 4 --steps 200000
 ```
 
 ---

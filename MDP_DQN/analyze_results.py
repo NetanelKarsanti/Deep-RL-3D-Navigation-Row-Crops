@@ -20,7 +20,7 @@ import numpy as np
 import torch
 
 from grid3d_env import Grid3DEnv
-from Q3_DQN import TwoLayerQNetwork, normalize_obs, N_ACTIONS, OBS_DIM
+from train_dqn import TwoLayerQNetwork, normalize_obs, N_ACTIONS, OBS_DIM
 
 
 # -----------------------------------------------------------------------------

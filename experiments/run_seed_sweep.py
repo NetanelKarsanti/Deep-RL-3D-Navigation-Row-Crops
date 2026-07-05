@@ -48,7 +48,7 @@ THIS_DIR = Path(__file__).resolve().parent
 REPO = THIS_DIR.parent
 RESULTS = THIS_DIR / "results"
 
-# Logical algo name -> sub-project directory holding Q3_DQN.py / analyze_results.py
+# Logical algo name -> sub-project directory holding train_dqn.py / analyze_results.py
 ALGO_DIRS = {
     "dqn": REPO / "MDP_DQN",
     "double_dqn": REPO / "Double_DQN",
@@ -113,10 +113,10 @@ def run_one(algo: str, seed: int, steps: int, reward_mode: str, air_cost, random
     # `-u` = unbuffered subprocess stdout, so the per-run train.log updates live
     # (block-buffering otherwise hides progress until the buffer fills / process ends,
     # which makes `tail -f` look frozen on a headless/SLURM run).
-    # Absolute --output so Q3_DQN.py's `Path(__file__).parent / output` resolves
+    # Absolute --output so train_dqn.py's `Path(__file__).parent / output` resolves
     # to OUR results dir rather than inside the sub-project folder.
     train_cmd = [
-        sys.executable, "-u", str(algo_dir / "Q3_DQN.py"),
+        sys.executable, "-u", str(algo_dir / "train_dqn.py"),
         "--output", str(out_dir),
         "--seed", str(seed),
         "--steps", str(steps),
